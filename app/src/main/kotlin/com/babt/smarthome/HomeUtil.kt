@@ -1,5 +1,13 @@
 package com.babt.smarthome
 
+import android.text.TextUtils
+import com.babt.smarthome.model.ExecModel
+import com.cylee.androidlib.base.BaseActivity
+import com.cylee.androidlib.base.Callback
+import com.cylee.androidlib.net.Net
+import com.cylee.androidlib.net.NetError
+import com.cylee.androidlib.util.PreferenceUtils
+import com.cylee.lib.widget.dialog.DialogUtil
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,6 +77,53 @@ object HomeUtil {
     fun getPmSetLevel(value : Int):Char {
         if (value <= 9) return '0' + (value - 0)
         return 'a' + (value - 10)
+    }
+
+    inline fun postCommand(activity:BaseActivity, command:String, runnable: Runnable?) {
+        activity.dialogUtil.showWaitingDialog(activity,"正在操作...")
+        Net.post(activity, ExecModel.buidInput(command), object : Net.SuccessListener<ExecModel>() {
+            override fun onResponse(response: ExecModel?) {
+                activity.dialogUtil.dismissWaitingDialog()
+                if (response != null && "ok".equals(response.result, false)) {
+                    if (runnable != null) {
+                        runnable.run()
+                    }
+                } else{
+                    DialogUtil.showToast(activity, "操作失败", false)
+                }
+            }
+        }, object : Net.ErrorListener() {
+            override fun onErrorResponse(e: NetError?) {
+                activity.dialogUtil.dismissWaitingDialog()
+            }
+        })
+    }
+
+    inline fun postCommand(activity:BaseActivity, command:String, callback: Callback<String>?, quite:Boolean = false) {
+        if (!quite)activity.dialogUtil.showWaitingDialog(activity,"正在操作...")
+        Net.post(activity, ExecModel.buidInput(command), object : Net.SuccessListener<ExecModel>() {
+            override fun onResponse(response: ExecModel?) {
+                if (!quite) {
+                    activity.dialogUtil.dismissWaitingDialog()
+                }
+                if (response != null && !TextUtils.isEmpty(response.result)) {
+                    if (callback != null) {
+                        callback.callback(response.result)
+                    }
+                } else{
+                    if (!quite) {
+                        DialogUtil.showToast(activity, "操作失败", false)
+                    }
+                }
+            }
+        }, object : Net.ErrorListener() {
+            override fun onErrorResponse(e: NetError?) {
+                if (!quite){
+                    activity.dialogUtil.dismissWaitingDialog()
+                    DialogUtil.showToast(activity, "请求失败", false)
+                }
+            }
+        })
     }
 }
 

@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="网络设置"
+            android:text="登陆"
             android:textColor="@color/white"
             android:textSize="@dimen/title_text_size" />
 
@@ -41,7 +41,7 @@
         android:textSize="@dimen/text_level_5"
         android:textColor="@color/material_blue_grey_800"
         android:padding="@dimen/item_margin"
-        android:text="请先使用当前设备连接ESP8266网络(密码是87673149),然后进行设置"/>
+        android:text="请使用平板上设置的用户名密码登陆"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,14 +49,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="WIFI名称"
+            android:text="登陆用户名"
             android:textColor="@color/material_blue_grey_800"/>
         <EditText
-            android:id="@+id/ain_wifi_name"
+            android:id="@+id/ai_login_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"/>
     </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,24 +64,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="WIFI密码"
+            android:text="登陆密码"
             android:textColor="@color/material_blue_grey_800"/>
         <EditText
-            android:id="@+id/ain_wifi_passwd"
+            android:id="@+id/ai_login_passwd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"/>
     </LinearLayout>
 
     <com.babt.smarthome.widget.StateTextView
-        android:id="@+id/ain_confirm_text"
+        android:id="@+id/ai_confirm_text"
         android:layout_width="match_parent"
         android:layout_marginLeft="@dimen/item_margin"
         android:layout_marginRight="@dimen/item_margin"
         android:layout_marginTop="@dimen/item_margin"
         android:layout_height="@dimen/list_item_height"
         android:background="@drawable/add_time_confirm_bg"
-        android:text="开始连接"
+        android:text="登陆"
         android:textSize="@dimen/text_level_1"
         android:textColor="@color/white"
         android:gravity="center"/>

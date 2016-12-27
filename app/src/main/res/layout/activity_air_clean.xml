@@ -219,7 +219,7 @@
                     android:text="自动运行"/>
             </com.babt.smarthome.widget.StateLinearLayout>
             <com.babt.smarthome.widget.StateLinearLayout
-                android:id="@+id/ac_leave_container"
+                android:id="@+id/ac_select_container"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -229,14 +229,14 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ac_leave"/>
+                    android:src="@drawable/ac_select"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#535151"
                     android:layout_marginTop="@dimen/item_margin"
                     android:textSize="@dimen/text_level_2"
-                    android:text="离家模式"/>
+                    android:text="房间选择"/>
             </com.babt.smarthome.widget.StateLinearLayout>
         </LinearLayout>
         <LinearLayout
@@ -264,26 +264,10 @@
                     android:textSize="@dimen/text_level_2"
                     android:text="辅助加热"/>
             </com.babt.smarthome.widget.StateLinearLayout>
-            <com.babt.smarthome.widget.StateLinearLayout
-                android:id="@+id/ac_select_container"
+            <android.support.v4.widget.Space
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:background="@drawable/ac_item_bg_sel"
-                android:gravity="center">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ac_select"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#535151"
-                    android:layout_marginTop="@dimen/item_margin"
-                    android:textSize="@dimen/text_level_2"
-                    android:text="房间选择"/>
-            </com.babt.smarthome.widget.StateLinearLayout>
+                android:layout_weight="1"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

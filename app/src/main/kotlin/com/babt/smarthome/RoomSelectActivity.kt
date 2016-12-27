@@ -8,35 +8,17 @@ import android.view.ViewGroup
 import android.widget.*
 import cn.csnbgsh.herbarium.bind
 import com.babt.smarthome.entity.Rooms
-import com.cylee.androidlib.base.BaseActivity
+import com.cylee.androidlib.base.Callback
+import com.cylee.androidlib.net.Net
 import com.cylee.androidlib.util.PreferenceUtils
 import com.cylee.lib.widget.dialog.DialogUtil
-import com.cylee.socket.TimeCheckSocket
 import org.jetbrains.anko.find
-import org.jetbrains.anko.onUiThread
 
 /**
  * Created by cylee on 16/9/22.
  */
 class RoomSelectActivity :AppBaseActivity() {
     companion object {
-        var ROOM_MASKS = arrayOf(1 shl 0,
-                1 shl 1,
-                1 shl 2,
-                1 shl 3,
-                1 shl 4,
-                1 shl 5,
-                1 shl 6,
-                1 shl 7,
-                1 shl 8,
-                1 shl 9,
-                1 shl 10,
-                1 shl 11,
-                1 shl 12,
-                1 shl 13,
-                1 shl 14,
-                1 shl 15)
-        var NUM_CHS = arrayOf("零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五")
         fun createIntent(context : Context): Intent {
             return Intent(context, RoomSelectActivity::class.java);
         }
@@ -60,29 +42,6 @@ class RoomSelectActivity :AppBaseActivity() {
             }
         }
 
-        mList!!.setOnItemLongClickListener {
-            adapterView, view, i, l ->
-            var item = mRooms?.mRooms?.get(i)
-            if (item != null) {
-                var editView = View.inflate(this, R.layout.edit_room_name, null)
-                var edit:EditText = editView.bind(R.id.ern_edit)
-                edit.setText(item.name)
-                edit.setSelection(item.name?.length ?: 0)
-                DialogUtil().showViewDialog(this, "修改名称", "取消", "保存", object : DialogUtil.ButtonClickListener {
-                    override fun OnLeftButtonClick() {
-                    }
-
-                    override fun OnRightButtonClick() {
-                        var newName = edit.text.toString()
-                        item.name = newName
-                        mNeedStoreData = true
-                    }
-                }, editView)
-                return@setOnItemLongClickListener true
-            }
-            return@setOnItemLongClickListener false
-        }
-
         find<View>(R.id.ars_exit).setOnClickListener {
             view -> onBackPressed()
         }
@@ -96,59 +55,59 @@ class RoomSelectActivity :AppBaseActivity() {
 
                         override fun OnRightButtonClick() {
                             dialogUtil.showWaitingDialog(this@RoomSelectActivity, "搜索中...")
-                            searRooms()
+                            searRooms(true)
                         }
                     },"重新搜索房间?")
             return@setOnLongClickListener true
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (PreferenceUtils.hasKey(HomePreference.ROOMS)) {
-            var rooms : Rooms = PreferenceUtils.getObject(HomePreference.ROOMS, Rooms::class.java)
-            if (rooms != null) {
+    override fun onResume() {
+        super.onResume()
+        searRooms(false)
+    }
+
+    fun searRooms(research:Boolean) {
+        var status = if (research) 1 else 0
+        HomeUtil.postCommand(this, "rooms"+status, object : Callback<String> {
+            override fun callback(data: String?) {
+                var rooms = Rooms.fromJson(data!!)
                 mRooms = rooms
                 mAdapter?.notifyDataSetChanged()
             }
-        } else {
-            searRooms()
-        }
-    }
-
-    fun searRooms() {
-        SocketManager.sendString("ASKCH1", object : TimeCheckSocket.AbsTimeSocketListener() {
-            override fun onError(errorCode: Int) {
-                onUiThread {
-                    dialogUtil.dismissWaitingDialog()
-                    DialogUtil.showToast(this@RoomSelectActivity, "刷新房间数据失败,请退出后重试!", false)
-                }
-            }
-            override fun onSuccess(data: String?) {
-                onUiThread {
-                    dialogUtil.dismissWaitingDialog()
-                    if (data != null && data.matches(Regex("C1=\\w+"))) {
-                        onUiThread {
-                            var rooms = Integer.parseInt(data.subSequence(3, data.length).toString(), 16)
-                            mRooms = Rooms()
-                            mRooms?.mRooms = mutableListOf()
-                            for (i in 1..15) {
-                                if ((rooms and ROOM_MASKS[i]) > 0) {
-                                    var item = Rooms.RoomItem()
-                                    item.id = i
-                                    item.name = "房间"+ NUM_CHS[i]
-                                    mRooms?.mRooms?.add(item)
-                                }
-                            }
-                            mNeedStoreData = true
-                            mAdapter?.notifyDataSetChanged()
-                        }
-                    } else {
-                        DialogUtil.showToast(this@RoomSelectActivity, "控制器异常,请退出后重试!", false)
-                    }
-                }
-            }
         })
+//        SocketManager.sendString("ASKCH1", object : TimeCheckSocket.AbsTimeSocketListener() {
+//            override fun onError(errorCode: Int) {
+//                onUiThread {
+//                    dialogUtil.dismissWaitingDialog()
+//                    DialogUtil.showToast(this@RoomSelectActivity, "刷新房间数据失败,请退出后重试!", false)
+//                }
+//            }
+//            override fun onSuccess(data: String?) {
+//                onUiThread {
+//                    dialogUtil.dismissWaitingDialog()
+//                    if (data != null && data.matches(Regex("C1=\\w+"))) {
+//                        onUiThread {
+//                            var rooms = Integer.parseInt(data.subSequence(3, data.length).toString(), 16)
+//                            mRooms = Rooms()
+//                            mRooms?.mRooms = mutableListOf()
+//                            for (i in 1..15) {
+//                                if ((rooms and ROOM_MASKS[i]) > 0) {
+//                                    var item = Rooms.RoomItem()
+//                                    item.id = i
+//                                    item.name = "房间"+ NUM_CHS[i]
+//                                    mRooms?.mRooms?.add(item)
+//                                }
+//                            }
+//                            mNeedStoreData = true
+//                            mAdapter?.notifyDataSetChanged()
+//                        }
+//                    } else {
+//                        DialogUtil.showToast(this@RoomSelectActivity, "控制器异常,请退出后重试!", false)
+//                    }
+//                }
+//            }
+//        })
     }
 
     override fun onStop() {

@@ -1,6 +1,7 @@
 package com.babt.smarthome
 
 import android.os.Bundle
+import android.text.TextUtils
 import com.cylee.androidlib.base.BaseActivity
 import com.cylee.androidlib.thread.Worker
 import com.cylee.androidlib.util.PreferenceUtils
@@ -12,7 +13,11 @@ import com.cylee.androidlib.util.TaskUtils
 class SplashActivity : BaseActivity() {
     var startWork = object: Worker() {
         override fun work() {
-            startActivity(MainActivity.createIntent(this@SplashActivity))
+            if (!TextUtils.isEmpty(PreferenceUtils.getString(HomePreference.APPID))) {
+                startActivity(MainActivity.createIntent(this@SplashActivity))
+            } else {
+                startActivity(LoginActivity.createIntent(this@SplashActivity))
+            }
             finish()
         }
     }

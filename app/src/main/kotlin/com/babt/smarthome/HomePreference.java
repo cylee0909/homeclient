@@ -7,7 +7,11 @@ import com.cylee.androidlib.util.PreferenceUtils;
  */
 
 public enum HomePreference implements PreferenceUtils.DefaultValueInterface {
-    LEAVE_HOME(null);
+    ROOMS(null),
+    APPID(""),
+    AUTO_RUN(false),
+    CHANGE_FILTER_USED_TIME(0L),
+    CHANGE_FILTER_TIP_TIME(System.currentTimeMillis());
     HomePreference(Object def) {
         mDef = def;
     }
