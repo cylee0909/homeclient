@@ -18,7 +18,7 @@ public class Login {
         private Input(String name, String passd){
             this.name = name;
             this.passd = passd;
-            this.url = "/login";
+            this.url = "/smarthome/login";
             this.method = Request.Method.POST;
             this.aClass = Login.class;
         }

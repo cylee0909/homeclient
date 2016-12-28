@@ -17,7 +17,7 @@ public class ExecModel {
     public static class Input extends InputBase {
         private String command;
         private Input(String command){
-            this.url = "/exec";
+            this.url = "/smarthome/exec";
             this.method = Request.Method.POST;
             this.aClass = ExecModel.class;
             this.command = command;
