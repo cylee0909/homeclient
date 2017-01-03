@@ -41,6 +41,10 @@ class MainActivity : AppBaseActivity() {
         var date = Date()
         mDateCnText?.setText("农历"+SimpleLunarCalendar(date).noYearDate+"    "+DateUtils.getWeekOfDate(date))
         mDateText?.setText(DATE_FORMAT.format(date))
+        bind<View>(R.id.am_people_img).setOnLongClickListener {
+            startActivity(LoginActivity.createIntent(this))
+            return@setOnLongClickListener true
+        }
     }
 
     override fun onResume() {

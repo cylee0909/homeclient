@@ -162,17 +162,6 @@
                     android:src="@drawable/icon_low"
                     android:layout_marginLeft="@dimen/item_margin_2"/>
             </LinearLayout>
-            <com.babt.smarthome.widget.StateTextView
-                android:id="@+id/ard_set_time_text"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/top_bar_height"
-                android:background="#16a2f4"
-                android:layout_marginLeft="@dimen/item_margin_2"
-                android:layout_marginRight="@dimen/item_margin_2"
-                android:textSize="@dimen/text_level_1"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="定时设置"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -16,7 +16,11 @@ import java.util.*
 class App : BaseApplication() {
     override fun onCreate() {
         super.onCreate()
-        Config.setHost("http://115.47.58.102:8990/")
+        if (BuildConfig.DEBUG) {
+            Config.setHost("http://192.168.31.103:8990/")
+        } else {
+            Config.setHost("http://115.47.58.102:8990/")
+        }
         Log.setLogLevel(if (BuildConfig.DEBUG) Log.OFF else Log.OFF)
         redirectLog()
     }

@@ -75,39 +75,7 @@ class RoomSelectActivity :AppBaseActivity() {
                 mRooms = rooms
                 mAdapter?.notifyDataSetChanged()
             }
-        })
-//        SocketManager.sendString("ASKCH1", object : TimeCheckSocket.AbsTimeSocketListener() {
-//            override fun onError(errorCode: Int) {
-//                onUiThread {
-//                    dialogUtil.dismissWaitingDialog()
-//                    DialogUtil.showToast(this@RoomSelectActivity, "刷新房间数据失败,请退出后重试!", false)
-//                }
-//            }
-//            override fun onSuccess(data: String?) {
-//                onUiThread {
-//                    dialogUtil.dismissWaitingDialog()
-//                    if (data != null && data.matches(Regex("C1=\\w+"))) {
-//                        onUiThread {
-//                            var rooms = Integer.parseInt(data.subSequence(3, data.length).toString(), 16)
-//                            mRooms = Rooms()
-//                            mRooms?.mRooms = mutableListOf()
-//                            for (i in 1..15) {
-//                                if ((rooms and ROOM_MASKS[i]) > 0) {
-//                                    var item = Rooms.RoomItem()
-//                                    item.id = i
-//                                    item.name = "房间"+ NUM_CHS[i]
-//                                    mRooms?.mRooms?.add(item)
-//                                }
-//                            }
-//                            mNeedStoreData = true
-//                            mAdapter?.notifyDataSetChanged()
-//                        }
-//                    } else {
-//                        DialogUtil.showToast(this@RoomSelectActivity, "控制器异常,请退出后重试!", false)
-//                    }
-//                }
-//            }
-//        })
+        }, mRooms != null && !research)
     }
 
     override fun onStop() {

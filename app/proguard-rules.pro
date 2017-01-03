@@ -15,3 +15,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep class com.babt.smarthome.model.** {
+    *;
+}
+-keep class com.babt.smarthome.entity.** {
+    *;
+}
+
+#PreferenceUtils相关类不混淆
+-keep class * implements com.cylee.androidlib.util.PreferenceUtils$DefaultValueInterface { *;}

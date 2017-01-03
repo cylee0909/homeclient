@@ -8,6 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import cn.csnbgsh.herbarium.bind
 import com.babt.smarthome.entity.Rooms
+import com.babt.smarthome.model.AirCleanData
+import com.babt.smarthome.model.ExecModel
+import com.babt.smarthome.model.RoomDetailData
+import com.cylee.androidlib.base.Callback
+import com.cylee.androidlib.net.Net
+import com.cylee.androidlib.net.NetError
 import com.cylee.lib.widget.dialog.DialogUtil
 import org.jetbrains.anko.find
 
@@ -23,8 +29,6 @@ class RoomDetailActivity : AppBaseActivity() , View.OnClickListener{
             return intent
         }
     }
-    var mPaused = true
-    var mTimeSetText : TextView? = null
     var mPmTipText : TextView? = null
     var mTimeTip : TextView? = null
     var mTmpText :TextView? = null
@@ -42,7 +46,6 @@ class RoomDetailActivity : AppBaseActivity() , View.OnClickListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room_detail)
-        mTimeSetText = bind(R.id.ard_set_time_text)
         mPmTipText = bind(R.id.ard_pm_tip_text)
         mTimeTip = bind(R.id.ard_time_tip_text)
         mTmpText = bind(R.id.ard_tmp_text)
@@ -54,7 +57,6 @@ class RoomDetailActivity : AppBaseActivity() , View.OnClickListener{
         mStartIcon = bind(R.id.ard_start_icon)
         mTitleText = bind(R.id.ard_title)
 
-        mTimeSetText?.setOnClickListener(this)
         mStartIcon?.setOnClickListener (this )
         mLowIcon?.setOnClickListener (this)
         mMediumIcon?.setOnClickListener(this)
@@ -89,93 +91,73 @@ class RoomDetailActivity : AppBaseActivity() , View.OnClickListener{
         return 'a' + (p - 10)
     }
 
+    override fun onStart() {
+        super.onStart()
+        Net.post(this, ExecModel.buidInput("roomDetail"+mCurrentId), object : Net.SuccessListener<ExecModel>() {
+            override fun onResponse(response: ExecModel?) {
+                if (response !=null && response.result != null) {
+                    var roomData = RoomDetailData.fromJson(response.result)
+                    if (roomData != null) {
+                        mPmTipText?.setText(String.format("PM2.5  %dug/m3", roomData.ipm))
+                        mTmpText?.setText(roomData.tmp.toString()+"°C")
+                        mHdyText?.setText(roomData.hdy.toString()+"%")
+                        mStarted = roomData.mode != 0
+                        refreshStartState()
+                        refreshLevel(roomData.mode)
+                    }
+                }
+            }
+        }, object : Net.ErrorListener() {
+            override fun onErrorResponse(e: NetError?) {
+                DialogUtil.showToast(this@RoomDetailActivity, "获取数据失败,请稍后重试", false)
+            }
+        })
+    }
+
     override fun onClick(v: View?) {
         when(v?.id) {
             R.id.ard_start_icon -> {
                 var command = if (mStarted)  "DESMB" else "SETMB"
-                dialogUtil.showWaitingDialog(this, "正在操作...", true)
-//                SocketManager.sendString(command+getChannelFromPosition(mCurrentId), object : TimeCheckSocket.AbsTimeSocketListener() {
-//                    override fun onSuccess(data: String?) {
-//                        onUiThread {
-//                            dialogUtil.dismissWaitingDialog()
-//                            mStarted = !mStarted
-//                            refreshStartState()
-//                            if (mStarted) {
-//                                TaskUtils.postOnMain(checkLevelWork)
-//                            }
-//                        }
-//                    }
-//                    override fun onError(errorCode: Int) {
-//                        super.onError(errorCode)
-//                        onUiThread {
-//                            dialogUtil.dismissWaitingDialog()
-//                            DialogUtil.showToast(this@RoomDetailActivity, "操作失败,请重试!", false)
-//                        }
-//                    }
-//                })
+                HomeUtil.postCommand(this, command + getChannelFromPosition(mCurrentId), Callback<String> {
+                    result ->
+                    if ("ok".equals(result, true)) {
+                        mStarted = !mStarted
+                        refreshStartState()
+                    }
+                })
             }
             R.id.ard_low_icon -> {
                 if (mStarted) {
-                    dialogUtil.showWaitingDialog(this, "正在操作...", true)
-//                    SocketManager.sendString("SETMB"+getChannelFromPosition(mCurrentId)+"L", object : TimeCheckSocket.AbsTimeSocketListener() {
-//                        override fun onSuccess(data: String?) {
-//                            onUiThread {
-//                                dialogUtil.dismissWaitingDialog()
-//                                refreshLevel(3)
-//                            }
-//                        }
-//                        override fun onError(errorCode: Int) {
-//                            super.onError(errorCode)
-//                            onUiThread {
-//                                dialogUtil.dismissWaitingDialog()
-//                                DialogUtil.showToast(this@RoomDetailActivity, "操作失败,请重试!", false)
-//                            }
-//                        }
-//                    })
+                    HomeUtil.postCommand(this, "SETMB" + getChannelFromPosition(mCurrentId) + "L", Callback {
+                        result ->
+                        if ("ok".equals(result, true)) {
+                            refreshLevel(3)
+                        }
+                    })
                 } else {
                     DialogUtil.showToast(this, "还未启动,请先启动", false)
                 }
             }
             R.id.ard_medium_icon -> {
                 if (mStarted) {
-                    dialogUtil.showWaitingDialog(this, "正在操作...", true)
-//                    SocketManager.sendString("SETMB"+getChannelFromPosition(mCurrentId)+"M", object : TimeCheckSocket.AbsTimeSocketListener() {
-//                        override fun onSuccess(data: String?) {
-//                            onUiThread {
-//                                dialogUtil.dismissWaitingDialog()
-//                                refreshLevel(6)
-//                            }
-//                        }
-//                        override fun onError(errorCode: Int) {
-//                            super.onError(errorCode)
-//                            onUiThread {
-//                                dialogUtil.dismissWaitingDialog()
-//                                DialogUtil.showToast(this@RoomDetailActivity, "操作失败,请重试!", false)
-//                            }
-//                        }
-//                    })
+                    HomeUtil.postCommand(this, "SETMB" + getChannelFromPosition(mCurrentId) + "M", Callback {
+                        result ->
+                        if ("ok".equals(result, true)) {
+                            refreshLevel(6)
+                        }
+                    })
                 } else {
                     DialogUtil.showToast(this, "还未启动,请先启动", false)
                 }
             }
             R.id.ard_high_icon -> {
                 if (mStarted) {
-                    dialogUtil.showWaitingDialog(this, "正在操作...", true)
-//                    SocketManager.sendString("SETMB"+getChannelFromPosition(mCurrentId)+"H", object : TimeCheckSocket.AbsTimeSocketListener() {
-//                        override fun onSuccess(data: String?) {
-//                            onUiThread {
-//                                dialogUtil.dismissWaitingDialog()
-//                                refreshLevel(9)
-//                            }
-//                        }
-//                        override fun onError(errorCode: Int) {
-//                            super.onError(errorCode)
-//                            onUiThread {
-//                                dialogUtil.dismissWaitingDialog()
-//                                DialogUtil.showToast(this@RoomDetailActivity, "操作失败,请重试!", false)
-//                            }
-//                        }
-//                    })
+                    HomeUtil.postCommand(this, "SETMB" + getChannelFromPosition(mCurrentId) + "H", Callback {
+                        result ->
+                        if ("ok".equals(result, true)) {
+                            refreshLevel(9)
+                        }
+                    })
                 } else {
                     DialogUtil.showToast(this, "还未启动,请先启动", false)
                 }
